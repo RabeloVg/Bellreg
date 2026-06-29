@@ -179,7 +179,8 @@ bellpmf(alphas, max_x)
 
 
 
-
+rm(list = setdiff(ls(), c("scaled_residuals_bell", "scaled_residuals_pois",
+                          "scaled_residuals_nb", "H")))
 # Dados Simulados ----
 
 ## Variável Explicativa Uniforme ----
@@ -634,8 +635,28 @@ qqnorm(eps.norm_pois_d4,
 qqline(eps.norm_pois_d4, col = "red")
 
 
+rm(list = setdiff(ls(), c("scaled_residuals_bell", "scaled_residuals_pois",
+                          "scaled_residuals_nb", "H")))
 ## Variável Explicativa Exponencial ----
 # Função de dados com variável explicativa exponencial
+dadosunif <- function(n) {
+  mX = matrix(NA, nrow = n, ncol = 2)
+  vBeta = matrix(c(1, 2))
+  vY = rep(NA, n)
+  vMu = rep(NA, n)
+  vX1 = rep(1, n)
+  vX2_raw = runif(n, min = 0, max = 1)
+  vX2_scaled = scale(vX2_raw, 
+                     scale = FALSE, center = TRUE) # padronizando vX2
+  for(i in 1:n){
+    mX[i, 1] = vX1[i]
+    mX[i, 2] = vX2_scaled[i]
+    vMu[i] = exp(t(mX[i, ]) %*% vBeta)
+    vY[i] = rbell(n = 1, theta = LambertW::W(vMu[i]))
+  }
+  return(list(vY = vY, mX = mX ))
+}
+
 dadosexp <- function(n) {
   mX = matrix(NA, nrow = n, ncol = 2)
   vBeta = matrix(c(1, 2))
@@ -1075,6 +1096,8 @@ qqline(eps.norm_pois_d4, col = "red")
 
 
 
+rm(list = setdiff(ls(), c("scaled_residuals_bell", "scaled_residuals_pois",
+                          "scaled_residuals_nb", "H")))
 # Dados Reais ----
 
 ## Base de Dados ----
@@ -1093,6 +1116,8 @@ data$goout <- as.factor(data$goout)
 data$Walc <- as.factor(data$Walc)
 # Nota Total
 data$GT <- data$G1 + data$G2 + data$G3 #Grade Total
+# Tamanho Amostra
+n = nrow(data)
 
 ## Análise Descritiva ----
 ### Sumário de Nota Total ----
